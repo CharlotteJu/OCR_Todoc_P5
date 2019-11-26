@@ -30,8 +30,8 @@ public class TaskDaoTest
     private static Project PROJECT = new Project(1, "Tartampion", 0xFFEADAD1);
     private static long PROJECT_ID = PROJECT.getId();
 
-    private static Task TASK_FIRST = new Task(PROJECT_ID, "test1", 0);
-    private static Task TASK_SECOND = new Task(PROJECT_ID, "test2", 0);
+    private static Task TASK_FIRST = new Task(1,PROJECT_ID, "test1", 0);
+    private static Task TASK_SECOND = new Task(2,PROJECT_ID, "test2", 0);
 
 
     @Rule
@@ -61,8 +61,8 @@ public class TaskDaoTest
     public void insertOneProjectAndGetIt() throws InterruptedException
     {
         this.database.projectDao().insertProject(PROJECT);
-        List<Project> projects = TestUtils.getValue(this.database.projectDao().getAllProjects());
-        assertEquals(projects.size(), 1);
+        Project project = TestUtils.getValue(this.database.projectDao().getProject(PROJECT_ID));
+        assertEquals(project.getId(), PROJECT_ID);
     }
 
     @Test
@@ -82,9 +82,8 @@ public class TaskDaoTest
         this.database.taskDao().insertTask(TASK_SECOND);
         List<Task> tasks = TestUtils.getValue(this.database.taskDao().getAllTasks());
         assertEquals(tasks.size(), 2);
-        List<Task> task1 = TestUtils.getValue(this.database.taskDao().getTask(tasks.get(0).getId()));
-        assertEquals(task1.size(), 1);
-        assertEquals("test1", task1.get(0).getName());
+        Task task1 = TestUtils.getValue(this.database.taskDao().getTask(TASK_FIRST.getId()));
+        assertEquals(1, task1.getId());
     }
 
     @Test
