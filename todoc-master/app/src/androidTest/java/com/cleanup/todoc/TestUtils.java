@@ -1,6 +1,9 @@
 package com.cleanup.todoc;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -11,6 +14,9 @@ import android.view.View;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by dannyroa on 5/9/15.
@@ -104,6 +110,23 @@ public class TestUtils {
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.scrollToPosition(this.position);
         }
+    }
+
+    public static <T> T getValue(final LiveData<T> liveData) throws InterruptedException {
+        final Object[] data = new Object[1];
+        final CountDownLatch latch = new CountDownLatch(1);
+        Observer<T> observer = new Observer<T>() {
+            @Override
+            public void onChanged(@Nullable T o) {
+                data[0] = o;
+                latch.countDown();
+                liveData.removeObserver(this);
+            }
+        };
+        liveData.observeForever(observer);
+        latch.await(2, TimeUnit.SECONDS);
+        //noinspection unchecked
+        return (T) data[0];
     }
 
 }
