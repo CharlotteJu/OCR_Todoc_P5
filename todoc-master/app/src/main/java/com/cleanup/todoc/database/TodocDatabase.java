@@ -22,6 +22,7 @@ public abstract class TodocDatabase extends RoomDatabase
 
     public static TodocDatabase getInstance(Context context)
     {
+        context.getApplicationContext().deleteDatabase("TodocDatabase.db");
         if(INSTANCE == null)
         {
             synchronized (TodocDatabase.class)

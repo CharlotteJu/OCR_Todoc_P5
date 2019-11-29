@@ -1,6 +1,7 @@
 package com.cleanup.todoc.ui;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.cleanup.todoc.R;
+import com.cleanup.todoc.Utils;
 import com.cleanup.todoc.injections.Injection;
 import com.cleanup.todoc.injections.ViewModelFactory;
 import com.cleanup.todoc.model.Project;
@@ -37,27 +39,29 @@ import java.util.List;
  * @author Gaëtan HERFRAY
  */
 public class MainActivity extends AppCompatActivity implements TasksAdapter.DeleteTaskListener {
+
     /**
      * List of all projects available in the application
      */
-    private final Project[] allProjects = Project.getAllProjects();
+    private /*final*/ Project[] allProjects  = Project.getAllProjects();
+    //private List<Project> allProjects = new ArrayList<>();
 
     /**
      * List of all current tasks of the application
      */
     @NonNull
-    private final ArrayList<Task> tasks = new ArrayList<>();
+    private /*final*/ ArrayList<Task> tasks = new ArrayList<>();
 
     /**
      * The adapter which handles the list of tasks
      */
-    private final TasksAdapter adapter = new TasksAdapter(tasks, this);
+    private /*final*/ TasksAdapter adapter; // = new TasksAdapter(tasks, this);
 
     /**
      * The sort method to be used to display tasks
      */
     @NonNull
-    private SortMethod sortMethod = SortMethod.NONE;
+    private Utils.SortMethod sortMethod = Utils.SortMethod.NONE;
 
     /**
      * Dialog to create a new task
@@ -104,8 +108,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks = findViewById(R.id.list_tasks);
         lblNoTasks = findViewById(R.id.lbl_no_task);
 
-        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        listTasks.setAdapter(adapter);
 
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,7 +117,12 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         });
 
         this.configViewModel();
+       // this.configProjects();
+
+        this.configRecyclerView();
     }
+
+    ///////////// MENU /////////////
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -128,25 +135,172 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         int id = item.getItemId();
 
         if (id == R.id.filter_alphabetical) {
-            sortMethod = SortMethod.ALPHABETICAL;
+            sortMethod = Utils.SortMethod.ALPHABETICAL;
         } else if (id == R.id.filter_alphabetical_inverted) {
-            sortMethod = SortMethod.ALPHABETICAL_INVERTED;
+            sortMethod = Utils.SortMethod.ALPHABETICAL_INVERTED;
         } else if (id == R.id.filter_oldest_first) {
-            sortMethod = SortMethod.OLD_FIRST;
+            sortMethod = Utils.SortMethod.OLD_FIRST;
         } else if (id == R.id.filter_recent_first) {
-            sortMethod = SortMethod.RECENT_FIRST;
+            sortMethod = Utils.SortMethod.RECENT_FIRST;
         }
 
-        updateTasks();
+        updateTasks(tasks);/////////////////////////
 
         return super.onOptionsItemSelected(item);
     }
 
+
+
+    ///////////// CONFIGURATION /////////////
+
+    private void configViewModel()
+    {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory(this);
+        this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
+    }
+
+    private void configRecyclerView()
+    {
+        adapter = new TasksAdapter(tasks, this);
+        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        listTasks.setAdapter(adapter);
+    }
+
+    ///////////// PROJECT /////////////
+
+    private void getAllProjects()
+    {
+        this.viewModel.getAllProjects().observe(this, new Observer<List<Project>>() {
+            @Override
+            public void onChanged(@Nullable List<Project> projects) {
+                updateProjects(projects);
+            }
+        });
+    }
+
+    private void updateProjects(List<Project> projects)
+    {
+        Project[] p = new Project[projects.size()];
+        for (int i = 0; i < p.length; i ++)
+        {
+            p[i] = projects.get(i);
+        }
+        //this.allProjects = p;
+    }
+
+    private void getProject(long id)
+    {
+        this.viewModel.getProject(id).observe(this, new Observer<Project>() {
+            @Override
+            public void onChanged(@Nullable Project project) {
+
+            }
+        });
+    }
+
+    private void insertProject(Project project)
+    {
+        this.viewModel.insertProject(project);
+    }
+
+    private void configProjects()
+    {
+        List<Project> p = new ArrayList<>();
+        for (int i =0; i < Project.getAllProjects().length; i ++)
+        {
+            p.add(Project.getAllProjects()[i]);
+        }
+        for (int i = 0; i < p.size(); i ++)
+        {
+            insertProject(p.get(i));
+        }
+        this.getAllProjects();
+    }
+
+    ///////////// TASK /////////////
+
+
+    private void getAllTasks()
+    {
+        this.viewModel.getAllTasks().observe(this, this::updateTasks);
+        this.viewModel.getAllTasks().observe(this, new Observer<List<Task>>() {
+            @Override
+            public void onChanged(@Nullable List<Task> tasks) {
+                adapter.updateTasks(tasks);
+            }
+        });
+    }
+
+
+    private void getTask(long id)
+    {
+        this.viewModel.getTask(id).observe(this, new Observer<Task>() {
+            @Override
+            public void onChanged(@Nullable Task tasks) {
+
+            }
+        });
+    }
+
+    private void insertTask(Task task)
+    {
+        this.getAllProjects();
+        this.viewModel.insertTask(task);
+    }
+
+    private void deleteTask(Task task)
+    {
+        this.viewModel.deleteTask(task);
+    }
+
+    /**
+     * Adds the given task to the list of created tasks.
+     *
+     * @param task the task to be added to the list
+     */
+    private void addTask(@NonNull Task task) {
+       /* tasks.add(task);
+        updateTasks(tasks);*/
+
+        /////////////////////////
+        this.insertTask(task);
+        this.getAllTasks();
+        /////////////////////////
+    }
+
+    /**
+     * Updates the list of tasks in the UI
+     */
+    private void updateTasks(List<Task> tasks) {
+        /////////////////////////
+        this.tasks = (ArrayList<Task>) tasks;
+        /////////////////////////
+
+        if (tasks.size() == 0)
+        {
+            lblNoTasks.setVisibility(View.VISIBLE);
+            listTasks.setVisibility(View.GONE);
+        } else {
+            lblNoTasks.setVisibility(View.GONE);
+            listTasks.setVisibility(View.VISIBLE);
+            /////////////////////////
+            adapter.updateTasks(Utils.sortTasks(tasks, sortMethod));
+            /////////////////////////
+        }
+    }
+
     @Override
     public void onDeleteTask(Task task) {
-        tasks.remove(task);
-        updateTasks();
+        /*tasks.remove(task);
+        updateTasks(tasks);/////////////////////////*/
+
+        /////////////////////////
+        this.deleteTask(task);
+        this.updateTasks(tasks);
+        /////////////////////////
     }
+
+    ///////////// DIALOG /////////////
 
     /**
      * Called when the user clicks on the positive button of the Create Task Dialog.
@@ -212,45 +366,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     }
 
     /**
-     * Adds the given task to the list of created tasks.
-     *
-     * @param task the task to be added to the list
-     */
-    private void addTask(@NonNull Task task) {
-        tasks.add(task);
-        updateTasks();
-    }
-
-    /**
-     * Updates the list of tasks in the UI
-     */
-    private void updateTasks() {
-        if (tasks.size() == 0) {
-            lblNoTasks.setVisibility(View.VISIBLE);
-            listTasks.setVisibility(View.GONE);
-        } else {
-            lblNoTasks.setVisibility(View.GONE);
-            listTasks.setVisibility(View.VISIBLE);
-            switch (sortMethod) {
-                case ALPHABETICAL:
-                    Collections.sort(tasks, new Task.TaskAZComparator());
-                    break;
-                case ALPHABETICAL_INVERTED:
-                    Collections.sort(tasks, new Task.TaskZAComparator());
-                    break;
-                case RECENT_FIRST:
-                    Collections.sort(tasks, new Task.TaskRecentComparator());
-                    break;
-                case OLD_FIRST:
-                    Collections.sort(tasks, new Task.TaskOldComparator());
-                    break;
-
-            }
-            adapter.updateTasks(tasks);
-        }
-    }
-
-    /**
      * Returns the dialog allowing the user to create a new task.
      *
      * @return the dialog allowing the user to create a new task
@@ -303,58 +418,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             dialogSpinner.setAdapter(adapter);
         }
     }
-
-    /**
-     * List of all possible sort methods for task
-     */
-    private enum SortMethod {
-        /**
-         * Sort alphabetical by name
-         */
-        ALPHABETICAL,
-        /**
-         * Inverted sort alphabetical by name
-         */
-        ALPHABETICAL_INVERTED,
-        /**
-         * Lastly created first
-         */
-        RECENT_FIRST,
-        /**
-         * First created first
-         */
-        OLD_FIRST,
-        /**
-         * No sort
-         */
-        NONE
-    }
-
-    private void configViewModel()
-    {
-        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory(this);
-        this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
-    }
-
-    ///////////// PROJECT /////////////
-
-    private LiveData<List<Project>> getAllProjects()
-    {
-        return this.viewModel.getAllProjects();
-    }
-
-    private LiveData<Project> getProject(long id)
-    {
-        return this.viewModel.getProject(id);
-    }
-
-    private void insertProject(Project project)
-    {
-        this.viewModel.insertProject(project);
-    }
-
-    ///////////// TASK /////////////
-
 
 
 }
