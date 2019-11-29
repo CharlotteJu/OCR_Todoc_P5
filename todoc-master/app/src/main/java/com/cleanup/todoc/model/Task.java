@@ -17,13 +17,13 @@ import java.util.Comparator;
  *
  * @author Gaëtan HERFRAY
  */
-//@Entity(foreignKeys = @ForeignKey(entity = Project.class, parentColumns = "id", childColumns = "projectId"))
-@Entity(foreignKeys = {@ForeignKey(entity = Project.class,
+@Entity(foreignKeys = @ForeignKey(entity = Project.class, parentColumns = "id", childColumns = "projectId"))
+/*@Entity(foreignKeys = {@ForeignKey(entity = Project.class,
         parentColumns = "id",
         childColumns = "projectId",
         onDelete = ForeignKey.CASCADE)},
         indices = {@Index(name = "projectId", value = {"id"})
-        })
+        })*/
 public class Task {
     /**
      * The unique identifier of the task
@@ -34,7 +34,7 @@ public class Task {
     /**
      * The unique identifier of the project associated to the task
      */
-    @ColumnInfo(name = "projectId")
+    @ColumnInfo(name = "projectId", index = true)
     private long projectId;
 
     /**

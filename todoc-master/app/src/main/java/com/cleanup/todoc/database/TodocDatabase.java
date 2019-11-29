@@ -22,7 +22,6 @@ public abstract class TodocDatabase extends RoomDatabase
 
     public static TodocDatabase getInstance(Context context)
     {
-        context.getApplicationContext().deleteDatabase("TodocDatabase.db");
         if(INSTANCE == null)
         {
             synchronized (TodocDatabase.class)
@@ -49,9 +48,19 @@ public abstract class TodocDatabase extends RoomDatabase
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put("id", 1);
-                contentValues.put("name", "Tartampion");
+                contentValues.put("name", "Projet Tartampion");
                 contentValues.put("color", 0xFFEADAD1);
 
+                db.insert("Project", OnConflictStrategy.IGNORE, contentValues);
+
+                contentValues.put("id", 2);
+                contentValues.put("name", "Projet Lucidia");
+                contentValues.put("color", 0xFFB4CDBA);
+                db.insert("Project", OnConflictStrategy.IGNORE, contentValues);
+
+                contentValues.put("id", 3);
+                contentValues.put("name", "Projet Circus");
+                contentValues.put("color", 0xFFA3CED2);
                 db.insert("Project", OnConflictStrategy.IGNORE, contentValues);
             }
         };

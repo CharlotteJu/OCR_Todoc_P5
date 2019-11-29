@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
         this.configViewModel();
        // this.configProjects();
+        this.getAllTasks();
 
         this.configRecyclerView();
     }
