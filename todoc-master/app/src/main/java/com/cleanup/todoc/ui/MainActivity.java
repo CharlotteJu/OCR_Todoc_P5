@@ -1,12 +1,11 @@
 package com.cleanup.todoc.ui;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,9 +27,12 @@ import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 /**
  * <p>Home activity of the application which is displayed when the user opens the app.</p>
@@ -43,61 +45,65 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     /**
      * List of all projects available in the application
      */
-    private /*final*/ Project[] allProjects  = Project.getAllProjects();
-    //private List<Project> allProjects = new ArrayList<>();
+    private Project[] allProjects;
 
     /**
      * List of all current tasks of the application
      */
     @NonNull
-    private /*final*/ ArrayList<Task> tasks = new ArrayList<>();
+    private ArrayList<Task> tasks ;
 
     /**
      * The adapter which handles the list of tasks
      */
-    private /*final*/ TasksAdapter adapter; // = new TasksAdapter(tasks, this);
+    private TasksAdapter adapter;
+
+    /**
+     * The ViewModel gives the data
+     */
+    private TaskViewModel viewModel;
 
     /**
      * The sort method to be used to display tasks
      */
     @NonNull
-    private Utils.SortMethod sortMethod = Utils.SortMethod.NONE;
+    private Utils.SortMethod sortMethod;
 
     /**
      * Dialog to create a new task
      */
     @Nullable
-    public AlertDialog dialog = null;
+    public AlertDialog dialog;
 
     /**
      * EditText that allows user to set the name of a task
      */
-    @Nullable
-    private EditText dialogEditText = null;
+    private EditText dialogEditText;
 
     /**
      * Spinner that allows the user to associate a project to a task
      */
-    @Nullable
-    private Spinner dialogSpinner = null;
+    private Spinner dialogSpinner;
+
+    //BIND VIEW
 
     /**
      * The RecyclerView which displays the list of tasks
      */
-    // Suppress warning is safe because variable is initialized in onCreate
-    @SuppressWarnings("NullableProblems")
-    @NonNull
-    private RecyclerView listTasks;
+    @BindView(R.id.list_tasks)
+    RecyclerView listTasks;
 
     /**
      * The TextView displaying the empty state
      */
-    // Suppress warning is safe because variable is initialized in onCreate
-    @SuppressWarnings("NullableProblems")
-    @NonNull
-    private TextView lblNoTasks;
+    @BindView(R.id.lbl_no_task)
+    TextView lblNoTasks;
 
-    private TaskViewModel viewModel;
+    /**
+     * The Button adding a task and show the dialog
+     */
+    @BindView(R.id.fab_add_task)
+    FloatingActionButton fab;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,21 +111,19 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
         setContentView(R.layout.activity_main);
 
-        listTasks = findViewById(R.id.list_tasks);
-        lblNoTasks = findViewById(R.id.lbl_no_task);
+        ButterKnife.bind(this);
 
-
-        findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showAddTaskDialog();
             }
         });
 
+        allProjects  = Project.getAllProjects();
+        sortMethod = Utils.SortMethod.NONE;
         this.configViewModel();
-       // this.configProjects();
         this.getAllTasks();
-
         this.configRecyclerView();
     }
 
@@ -132,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         int id = item.getItemId();
 
         if (id == R.id.filter_alphabetical) {
@@ -145,77 +150,29 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             sortMethod = Utils.SortMethod.RECENT_FIRST;
         }
 
-        updateTasks(tasks);/////////////////////////
-
+        updateTasks(tasks);
         return super.onOptionsItemSelected(item);
     }
 
-
-
     ///////////// CONFIGURATION /////////////
 
+    /**
+     * Configuration for the ViewModel
+     */
     private void configViewModel()
     {
         ViewModelFactory viewModelFactory = Injection.provideViewModelFactory(this);
         this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskViewModel.class);
     }
 
+    /**
+     * Configuration for the RecyclerView
+     */
     private void configRecyclerView()
     {
         adapter = new TasksAdapter(tasks, this);
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
-    }
-
-    ///////////// PROJECT /////////////
-
-    private void getAllProjects()
-    {
-        this.viewModel.getAllProjects().observe(this, new Observer<List<Project>>() {
-            @Override
-            public void onChanged(@Nullable List<Project> projects) {
-                updateProjects(projects);
-            }
-        });
-    }
-
-    private void updateProjects(List<Project> projects)
-    {
-        Project[] p = new Project[projects.size()];
-        for (int i = 0; i < p.length; i ++)
-        {
-            p[i] = projects.get(i);
-        }
-        //this.allProjects = p;
-    }
-
-    private void getProject(long id)
-    {
-        this.viewModel.getProject(id).observe(this, new Observer<Project>() {
-            @Override
-            public void onChanged(@Nullable Project project) {
-
-            }
-        });
-    }
-
-    private void insertProject(Project project)
-    {
-        this.viewModel.insertProject(project);
-    }
-
-    private void configProjects()
-    {
-        List<Project> p = new ArrayList<>();
-        for (int i =0; i < Project.getAllProjects().length; i ++)
-        {
-            p.add(Project.getAllProjects()[i]);
-        }
-        for (int i = 0; i < p.size(); i ++)
-        {
-            insertProject(p.get(i));
-        }
-        this.getAllProjects();
     }
 
     ///////////// TASK /////////////
@@ -224,28 +181,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     private void getAllTasks()
     {
         this.viewModel.getAllTasks().observe(this, this::updateTasks);
-        this.viewModel.getAllTasks().observe(this, new Observer<List<Task>>() {
-            @Override
-            public void onChanged(@Nullable List<Task> tasks) {
-                adapter.updateTasks(tasks);
-            }
-        });
-    }
-
-
-    private void getTask(long id)
-    {
-        this.viewModel.getTask(id).observe(this, new Observer<Task>() {
-            @Override
-            public void onChanged(@Nullable Task tasks) {
-
-            }
-        });
     }
 
     private void insertTask(Task task)
     {
-        this.getAllProjects();
         this.viewModel.insertTask(task);
     }
 
@@ -259,46 +198,35 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      *
      * @param task the task to be added to the list
      */
-    private void addTask(@NonNull Task task) {
-       /* tasks.add(task);
-        updateTasks(tasks);*/
-
-        /////////////////////////
+    private void addTask(@NonNull Task task)
+    {
         this.insertTask(task);
-        this.getAllTasks();
-        /////////////////////////
+        this.updateTasks(tasks);
     }
 
     /**
      * Updates the list of tasks in the UI
      */
-    private void updateTasks(List<Task> tasks) {
-        /////////////////////////
+    private void updateTasks(List<Task> tasks)
+    {
         this.tasks = (ArrayList<Task>) tasks;
-        /////////////////////////
-
         if (tasks.size() == 0)
         {
             lblNoTasks.setVisibility(View.VISIBLE);
             listTasks.setVisibility(View.GONE);
-        } else {
+        } else
+        {
             lblNoTasks.setVisibility(View.GONE);
             listTasks.setVisibility(View.VISIBLE);
-            /////////////////////////
             adapter.updateTasks(Utils.sortTasks(tasks, sortMethod));
-            /////////////////////////
         }
     }
 
     @Override
-    public void onDeleteTask(Task task) {
-        /*tasks.remove(task);
-        updateTasks(tasks);/////////////////////////*/
-
-        /////////////////////////
+    public void onDeleteTask(Task task)
+    {
         this.deleteTask(task);
         this.updateTasks(tasks);
-        /////////////////////////
     }
 
     ///////////// DIALOG /////////////
@@ -326,16 +254,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             // If both project and name of the task have been set
             else if (taskProject != null) {
-                // TODO: Replace this by id of persisted task
-                long id = (long) (Math.random() * 50000);
 
-
-                Task task = new Task(
-                        id,
-                        taskProject.getId(),
-                        taskName,
-                        new Date().getTime()
-                );
+                Task task = new Task(taskProject.getId(), taskName, new Date().getTime());
 
                 addTask(task);
 
@@ -346,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 dialogInterface.dismiss();
             }
         }
-        // If dialog is aloready closed
+        // If dialog is already closed
         else {
             dialogInterface.dismiss();
         }
@@ -420,5 +340,66 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         }
     }
 
+    /* ///////////// PROJECT /////////////
+
+    private void getAllProjects()
+    {
+        this.viewModel.getAllProjects().observe(this, new Observer<List<Project>>() {
+            @Override
+            public void onChanged(@Nullable List<Project> projects) {
+                updateProjects(projects);
+            }
+        });
+    }
+
+    private void updateProjects(List<Project> projects)
+    {
+        Project[] p = new Project[projects.size()];
+        for (int i = 0; i < p.length; i ++)
+        {
+            p[i] = projects.get(i);
+        }
+        //this.allProjects = p;
+    }
+
+    private void getProject(long id)
+    {
+        this.viewModel.getProject(id).observe(this, new Observer<Project>() {
+            @Override
+            public void onChanged(@Nullable Project project) {
+
+            }
+        });
+    }
+
+    private void insertProject(Project project)
+    {
+        this.viewModel.insertProject(project);
+    }
+
+    private void configProjects()
+    {
+        List<Project> p = new ArrayList<>();
+        for (int i =0; i < Project.getAllProjects().length; i ++)
+        {
+            p.add(Project.getAllProjects()[i]);
+        }
+        for (int i = 0; i < p.size(); i ++)
+        {
+            insertProject(p.get(i));
+        }
+        this.getAllProjects();
+    }*/
+
+    ////////////TASK//////////////
+       /*private void getTask(long id)
+    {
+        this.viewModel.getTask(id).observe(this, new Observer<Task>() {
+            @Override
+            public void onChanged(@Nullable Task tasks) {
+
+            }
+        });
+    }*/
 
 }
