@@ -21,11 +21,6 @@ public class ProjectDataRepository
         return this.projectDao.getAllProjects();
     }
 
-    public LiveData<Project> getProject(long id)
-    {
-        return this.projectDao.getProject(id);
-    }
-
     public void insertProject (Project project)
     {
         this.projectDao.insertProject(project);

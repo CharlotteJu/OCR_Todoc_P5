@@ -30,11 +30,6 @@ public class TaskViewModel extends ViewModel
         return this.projectData.getAllProjects();
     }
 
-    public LiveData<Project> getProject(long id)
-    {
-        return this.projectData.getProject(id);
-    }
-
     public void insertProject(Project project)
     {
         executor.execute(() -> {
@@ -48,11 +43,6 @@ public class TaskViewModel extends ViewModel
     public LiveData<List<Task>> getAllTasks()
     {
         return this.taskData.getAllTasks();
-    }
-
-    public LiveData<Task> getTask(long id)
-    {
-        return this.taskData.getTask(id);
     }
 
     public void insertTask(Task task)

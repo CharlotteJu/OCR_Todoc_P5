@@ -21,11 +21,6 @@ public class TaskDataRepository
         return this.taskDao.getAllTasks();
     }
 
-    public LiveData<Task> getTask(long id)
-    {
-        return this.taskDao.getTask(id);
-    }
-
     public void insertTask(Task task)
     {
         this.taskDao.insertTask(task);

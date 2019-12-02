@@ -51,6 +51,16 @@ public class TaskDaoTest
     }
 
     @Test
+    public void insertOneProjectAndGetProjects () throws InterruptedException
+    {
+        List<Project> projects = TestUtils.getValue(this.database.projectDao().getAllProjects());
+        this.database.projectDao().insertProject(PROJECT);
+        assertEquals(projects.size(), 0);
+        projects = TestUtils.getValue(this.database.projectDao().getAllProjects());
+        assertEquals(projects.size(), 1);
+
+    }
+    @Test
     public void getTasksWhenNoTaskInserted() throws InterruptedException
     {
         List<Task> tasks = TestUtils.getValue(this.database.taskDao().getAllTasks());
@@ -58,32 +68,16 @@ public class TaskDaoTest
     }
 
     @Test
-    public void insertOneProjectAndGetIt() throws InterruptedException
-    {
-        this.database.projectDao().insertProject(PROJECT);
-        Project project = TestUtils.getValue(this.database.projectDao().getProject(PROJECT_ID));
-        assertEquals(project.getId(), PROJECT_ID);
-    }
-
-    @Test
     public void insertOneTaskAndGetTasks() throws InterruptedException
     {
-        this.database.projectDao().insertProject(PROJECT);
-        this.database.taskDao().insertTask(TASK_FIRST);
         List<Task> tasks = TestUtils.getValue(this.database.taskDao().getAllTasks());
-        assertEquals(tasks.size(), 1);
-    }
+        assertEquals(tasks.size(), 0);
 
-    @Test
-    public void insertOneTaskAndGetIt() throws InterruptedException
-    {
         this.database.projectDao().insertProject(PROJECT);
         this.database.taskDao().insertTask(TASK_FIRST);
-        this.database.taskDao().insertTask(TASK_SECOND);
-        List<Task> tasks = TestUtils.getValue(this.database.taskDao().getAllTasks());
-        assertEquals(tasks.size(), 2);
-        Task task1 = TestUtils.getValue(this.database.taskDao().getTask(TASK_FIRST.getId()));
-        assertEquals(1, task1.getId());
+
+        tasks = TestUtils.getValue(this.database.taskDao().getAllTasks());
+        assertEquals(tasks.size(), 1);
     }
 
     @Test
