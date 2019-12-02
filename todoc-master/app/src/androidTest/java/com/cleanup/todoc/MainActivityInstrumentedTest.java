@@ -1,6 +1,9 @@
 package com.cleanup.todoc;
 
+import android.arch.core.executor.testing.InstantTaskExecutorRule;
+import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -12,6 +15,7 @@ import com.cleanup.todoc.database.TodocDatabase;
 import com.cleanup.todoc.model.Task;
 import com.cleanup.todoc.ui.MainActivity;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,16 +45,14 @@ import static org.junit.Assert.assertThat;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityInstrumentedTest {
 
-
+    private TodocDatabase database;
 
     @Rule
     public ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class);
 
-    @Before
-
 
     @Test
-    public void addAndRemoveTask() {
+    public void addAndRemoveTask() throws InterruptedException{
         MainActivity activity = rule.getActivity();
         TextView lblNoTask = activity.findViewById(R.id.lbl_no_task);
         RecyclerView listTasks = activity.findViewById(R.id.list_tasks);
@@ -75,10 +77,7 @@ public class MainActivityInstrumentedTest {
         // Check that recyclerView is displayed
         assertThat(listTasks.getVisibility(), equalTo(View.VISIBLE));
         // Check that it contains one element only
-        listSize++;
-        int list2 = listTasks.getAdapter().getItemCount();
-        //onView(withId(R.id.list_tasks)).check(withItemCount(listSize));
-        assertEquals(list2, listSize);
+        assertEquals(listTasks.getAdapter().getItemCount(), listSize+1);
 
 
         onView(withId(R.id.list_tasks)).perform(RecyclerViewActions.actionOnItemAtPosition(0, new DeleteViewAction()));
@@ -106,6 +105,12 @@ public class MainActivityInstrumentedTest {
     @Test
     public void sortTasks() {
         MainActivity activity = rule.getActivity();
+
+        RecyclerView listTasks = activity.findViewById(R.id.list_tasks);
+        int countList = listTasks.getAdapter().getItemCount();
+        for (int i = 0 ; i < countList; i++){
+            onView(withId(R.id.list_tasks)).perform(RecyclerViewActions.actionOnItemAtPosition(0, new DeleteViewAction()));
+        }
 
         onView(withId(R.id.fab_add_task)).perform(click());
         onView(withId(R.id.txt_task_name)).perform(replaceText("aaa Tâche example"));
