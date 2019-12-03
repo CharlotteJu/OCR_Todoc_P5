@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+        tasks = new ArrayList<>();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
