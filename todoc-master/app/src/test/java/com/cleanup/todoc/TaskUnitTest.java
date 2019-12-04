@@ -43,9 +43,9 @@ public class TaskUnitTest {
         tasks.add(task3);
         Collections.sort(tasks, new Task.TaskAZComparator());
 
-        assertSame(tasks.get(0), task1);
-        assertSame(tasks.get(1), task3);
-        assertSame(tasks.get(2), task2);
+        assertSame(tasks.get(2), task1);
+        assertSame(tasks.get(0), task3);
+        assertSame(tasks.get(1), task2);
     }
 
     @Test
@@ -60,9 +60,9 @@ public class TaskUnitTest {
         tasks.add(task3);
         Collections.sort(tasks, new Task.TaskZAComparator());
 
-        assertSame(tasks.get(0), task2);
-        assertSame(tasks.get(1), task3);
-        assertSame(tasks.get(2), task1);
+        assertSame(tasks.get(1), task2);
+        assertSame(tasks.get(2), task3);
+        assertSame(tasks.get(0), task1);
     }
 
     @Test

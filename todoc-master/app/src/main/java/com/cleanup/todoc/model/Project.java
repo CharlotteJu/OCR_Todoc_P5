@@ -7,8 +7,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.util.List;
-
 /**
  * <p>Models for project in which tasks are included.</p>
  *

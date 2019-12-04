@@ -4,7 +4,6 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,12 +17,6 @@ import java.util.Comparator;
  * @author Gaëtan HERFRAY
  */
 @Entity(foreignKeys = @ForeignKey(entity = Project.class, parentColumns = "id", childColumns = "projectId"))
-/*@Entity(foreignKeys = {@ForeignKey(entity = Project.class,
-        parentColumns = "id",
-        childColumns = "projectId",
-        onDelete = ForeignKey.CASCADE)},
-        indices = {@Index(name = "projectId", value = {"id"})
-        })*/
 public class Task {
     /**
      * The unique identifier of the task
@@ -169,7 +162,7 @@ public class Task {
     }
 
     /**
-     * Comparator to sort task from A to Z
+     * Comparator to sort task from A to Z project's name
      */
     public static class TaskAZComparator implements Comparator<Task> {
         @Override
@@ -179,7 +172,7 @@ public class Task {
     }
 
     /**
-     * Comparator to sort task from Z to A
+     * Comparator to sort task from Z to A project's name
      */
     public static class TaskZAComparator implements Comparator<Task> {
         @Override
