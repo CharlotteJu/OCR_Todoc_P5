@@ -17,17 +17,11 @@ public abstract class TodocDatabase extends RoomDatabase
 {
     public abstract ProjectDao projectDao();
     public abstract TaskDao taskDao();
-
     private static volatile TodocDatabase INSTANCE;
-
-    public static TodocDatabase getInstance(Context context)
-    {
-        if(INSTANCE == null)
-        {
-            synchronized (TodocDatabase.class)
-            {
-                if(INSTANCE == null)
-                {
+    public static TodocDatabase getInstance(Context context) {
+        if(INSTANCE == null) {
+            synchronized (TodocDatabase.class) {
+                if(INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             TodocDatabase.class, "TodocDatabase.db")
                             .addCallback(prepopulateDatabase())
@@ -38,19 +32,19 @@ public abstract class TodocDatabase extends RoomDatabase
         return INSTANCE;
     }
 
-    private static Callback prepopulateDatabase()
-    {
+    /**
+     * Returns a callback to add the projects in the database
+     * @return a callback to add the projects in the database
+     */
+    private static Callback prepopulateDatabase() {
         return new Callback() {
-
             @Override
             public void onCreate(@NonNull SupportSQLiteDatabase db) {
                 super.onCreate(db);
-
                 ContentValues contentValues = new ContentValues();
                 contentValues.put("id", 1L);
                 contentValues.put("name", "Projet Tartampion");
                 contentValues.put("color", 0xFFEADAD1);
-
                 db.insert("Project", OnConflictStrategy.IGNORE, contentValues);
 
                 contentValues.put("id", 2L);

@@ -3,6 +3,7 @@ package com.cleanup.todoc.ui;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -122,11 +123,22 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         });
 
         allProjects  = Project.getAllProjects();
-        sortMethod = Utils.SortMethod.NONE;
         this.configViewModel();
         this.getAllTasks();
         this.configRecyclerView();
+
+        sortMethod = (Utils.SortMethod) getLastCustomNonConfigurationInstance();
+        if (sortMethod == null) {
+            sortMethod = Utils.SortMethod.NONE;
+        }
+
     }
+
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return sortMethod;
+    }
+
 
     ///////////// MENU /////////////
 
@@ -178,10 +190,10 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
     ///////////// TASK /////////////
 
-
     private void getAllTasks()
     {
         this.viewModel.getAllTasks().observe(this, this::updateTasks);
+
     }
 
     private void insertTask(Task task)

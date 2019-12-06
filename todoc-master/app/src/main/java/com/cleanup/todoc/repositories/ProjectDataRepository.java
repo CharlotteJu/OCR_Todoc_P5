@@ -7,8 +7,8 @@ import com.cleanup.todoc.model.Project;
 
 import java.util.List;
 
-public class ProjectDataRepository
-{
+public class ProjectDataRepository {
+
     private final ProjectDao projectDao;
 
     public ProjectDataRepository (ProjectDao projectDao)
@@ -25,6 +25,4 @@ public class ProjectDataRepository
     {
         this.projectDao.insertProject(project);
     }
-
-
 }

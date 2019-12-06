@@ -65,6 +65,7 @@ public class MainActivityInstrumentedTest {
             listSize = listTasks.getAdapter().getItemCount();
         }
 
+
         onView(withId(R.id.fab_add_task)).perform(click());
         onView(withId(R.id.txt_task_name)).perform(replaceText("Tâche example"));
         onView(withId(android.R.id.button1)).perform(click());
@@ -106,7 +107,8 @@ public class MainActivityInstrumentedTest {
         RecyclerView listTasks = activity.findViewById(R.id.list_tasks);
         int countList = listTasks.getAdapter().getItemCount();
         for (int i = 0 ; i < countList; i++){
-            onView(withId(R.id.list_tasks)).perform(RecyclerViewActions.actionOnItemAtPosition(0, new DeleteViewAction()));
+            onView(withId(R.id.list_tasks)).perform(RecyclerViewActions.
+                    actionOnItemAtPosition(0, new DeleteViewAction()));
         }
 
         onView(withId(R.id.fab_add_task)).perform(click());

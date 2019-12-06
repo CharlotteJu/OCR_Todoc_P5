@@ -26,13 +26,10 @@ public class TaskDaoTest
     private TodocDatabase database;
 
     // DATA FOR TESTS
-
     private static Project PROJECT = new Project(1, "Tartampion", 0xFFEADAD1);
     private static long PROJECT_ID = PROJECT.getId();
-
     private static Task TASK_FIRST = new Task(1,PROJECT_ID, "test1", 0);
     private static Task TASK_SECOND = new Task(2,PROJECT_ID, "test2", 0);
-
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -60,6 +57,7 @@ public class TaskDaoTest
         assertEquals(projects.size(), 1);
 
     }
+
     @Test
     public void getTasksWhenNoTaskInserted() throws InterruptedException
     {
@@ -92,6 +90,4 @@ public class TaskDaoTest
         tasks = TestUtils.getValue(this.database.taskDao().getAllTasks());
         assertEquals(tasks.size(), 1);
     }
-
-
 }

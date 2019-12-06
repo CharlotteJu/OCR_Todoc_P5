@@ -42,7 +42,8 @@ public abstract class Utils
      * @return the {@link List<Task>} but sorted
      */
     @NonNull
-    public static List<Task> sortTasks(@NonNull final List<Task> tasks,@NonNull SortMethod sortMethod) {
+    public static List<Task> sortTasks(@NonNull final List<Task> tasks,
+                                       @NonNull SortMethod sortMethod) {
         if (sortMethod == null) sortMethod = SortMethod.NONE;
         if (tasks.size()!= 0) {
             switch (sortMethod) {
@@ -62,6 +63,5 @@ public abstract class Utils
         }
         return tasks;
     }
-
 
 }

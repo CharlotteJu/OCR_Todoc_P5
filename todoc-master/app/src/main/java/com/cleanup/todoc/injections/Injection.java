@@ -16,24 +16,20 @@ public class Injection
         TodocDatabase database = TodocDatabase.getInstance(c);
         return new ProjectDataRepository(database.projectDao());
     }
-
     public static TaskDataRepository provideTaskDataSource(Context c)
     {
         TodocDatabase database = TodocDatabase.getInstance(c);
         return new TaskDataRepository(database.taskDao());
     }
-
     public static Executor provideExecutor()
     {
         return Executors.newSingleThreadExecutor();
     }
-
     public static ViewModelFactory provideViewModelFactory (Context c)
     {
         ProjectDataRepository projectData = provideProjectDataSource(c);
         TaskDataRepository taskData = provideTaskDataSource(c);
         Executor executor = provideExecutor();
-
         return new ViewModelFactory(projectData, taskData, executor);
     }
 }
